@@ -79,17 +79,18 @@ if (APPLE)
     # For some reason, CMake doesn't know about .m
     set_source_files_properties(${glfw_SOURCES} PROPERTIES LANGUAGE C)
 # switching this section below to be non-Apple for some reason older builds don't like the STREQUAL line
- else()
-# Make GCC and Clang warn about declarations that VS 2010 and 2012 won't accept
-# for all source files that VS will build
-if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    if (WIN32)
-        set(windows_SOURCES ${glfw_SOURCES})
-    else()
-        set(windows_SOURCES ${common_SOURCES})
+else()
+    # Make GCC and Clang warn about declarations that VS 2010 and 2012 won't accept
+    # for all source files that VS will build
+    if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+        if (WIN32)
+            set(windows_SOURCES ${glfw_SOURCES})
+        else()
+            set(windows_SOURCES ${common_SOURCES})
+        endif()
+        set_source_files_properties(${windows_SOURCES} PROPERTIES
+            COMPILE_FLAGS -Wdeclaration-after-statement)
     endif()
-    set_source_files_properties(${windows_SOURCES} PROPERTIES
-        COMPILE_FLAGS -Wdeclaration-after-statement)
 endif()
 
 add_library(glfw ${glfw_SOURCES} ${glfw_HEADERS})
