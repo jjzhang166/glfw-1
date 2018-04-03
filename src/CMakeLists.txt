@@ -78,8 +78,8 @@ endif()
 if (APPLE)
     # For some reason, CMake doesn't know about .m
     set_source_files_properties(${glfw_SOURCES} PROPERTIES LANGUAGE C)
-endif()
-
+# switching this section below to be non-Apple for some reason older builds don't like the STREQUAL line
+ else()
 # Make GCC and Clang warn about declarations that VS 2010 and 2012 won't accept
 # for all source files that VS will build
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
