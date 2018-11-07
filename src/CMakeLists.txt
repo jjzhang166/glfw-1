@@ -75,11 +75,10 @@ endif()
 if (APPLE)
     # For some reason, CMake doesn't know about .m
     set_source_files_properties(${glfw_SOURCES} PROPERTIES LANGUAGE C)
-endif()
-
+else()
 # Make GCC and Clang warn about declarations that VS 2010 and 2012 won't accept
 # for all source files that VS will build
-if (${CMAKE_C_COMPILER_ID} STREQUAL GNU OR ${CMAKE_C_COMPILER_ID} STREQUAL Clang)
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     if (WIN32)
         set(windows_SOURCES ${glfw_SOURCES})
     else()
@@ -87,6 +86,7 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL GNU OR ${CMAKE_C_COMPILER_ID} STREQUAL Clang
     endif()
     set_source_files_properties(${windows_SOURCES} PROPERTIES
         COMPILE_FLAGS -Wdeclaration-after-statement)
+endif()
 endif()
 
 add_library(glfw ${glfw_SOURCES} ${glfw_HEADERS})
