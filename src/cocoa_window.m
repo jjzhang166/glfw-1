@@ -442,8 +442,7 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
         markedText = [[NSMutableAttributedString alloc] init];
 
         [self updateTrackingAreas];
-        [self registerForDraggedTypes:[NSArray arrayWithObjects:
-                                       NSPasteboardTypeFileURL, nil]];
+        [self registerForDraggedTypes:@[(__bridge NSString*) kUTTypeURL]];
     }
 
     return self;
@@ -731,27 +730,26 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender
 {
-    NSPasteboard* pasteboard = [sender draggingPasteboard];
-    NSArray* files = [pasteboard propertyListForType:NSPasteboardTypeFileURL];
-
     const NSRect contentRect = [window->ns.view frame];
-    _glfwInputCursorPos(window,
-                        [sender draggingLocation].x,
-                        contentRect.size.height - [sender draggingLocation].y);
+    // NOTE: The returned location uses base 0,1 not 0,0
+    const NSPoint pos = [sender draggingLocation];
+    _glfwInputCursorPos(window, pos.x, contentRect.size.height - pos.y);
 
-    const NSUInteger count = [files count];
+    NSPasteboard* pasteboard = [sender draggingPasteboard];
+    NSDictionary* options = @{NSPasteboardURLReadingFileURLsOnlyKey:@YES};
+    NSArray* urls = [pasteboard readObjectsForClasses:@[[NSURL class]]
+                                              options:options];
+    const NSUInteger count = [urls count];
     if (count)
     {
-        NSEnumerator* e = [files objectEnumerator];
         char** paths = calloc(count, sizeof(char*));
-        NSUInteger i;
 
-        for (i = 0;  i < count;  i++)
-            paths[i] = _glfw_strdup([[e nextObject] UTF8String]);
+        for (NSUInteger i = 0;  i < count;  i++)
+            paths[i] = _glfw_strdup([urls[i] fileSystemRepresentation]);
 
         _glfwInputDrop(window, (int) count, (const char**) paths);
 
-        for (i = 0;  i < count;  i++)
+        for (NSUInteger i = 0;  i < count;  i++)
             free(paths[i]);
         free(paths);
     }
